@@ -1,5 +1,7 @@
 package code;
 
+import java.util.Arrays;
+
 import code.Matrix.Hostage;
 import code.Matrix.Position;
 
@@ -26,7 +28,7 @@ public class Actions {
 				f = false;
 		}
 		return f ? new Node(x, (byte) (y - 1), host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("up,")) : null;
+				path.append("left,")) : null;
 	}
 
 	static Node right(Node node) {
@@ -50,7 +52,7 @@ public class Actions {
 				f = false;
 		}
 		return f ? new Node(x, (byte) (y + 1), host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("down,")) : null;
+				path.append("right,")) : null;
 	}
 
 	static Node down(Node node) {
@@ -74,7 +76,7 @@ public class Actions {
 				f = false;
 		}
 		return f ? new Node((byte) (x + 1), y, host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("right,")) : null;
+				path.append("down,")) : null;
 	}
 
 	static Node up(Node node) {
@@ -98,7 +100,7 @@ public class Actions {
 				f = false;
 		}
 		return f ? new Node((byte) (x - 1), y, host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("left,")) : null;
+				path.append("up,")) : null;
 	}
 
 	static Node drop(Node node) {
@@ -109,12 +111,18 @@ public class Actions {
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
+		int numOfPills = Integer.bitCount(pill);
 		StringBuilder path = new StringBuilder(node.path.toString());
 
 		byte cnt = 0;
 		byte[] new_host = host.clone();
 		if (x == Matrix.Telephone.x && y == Matrix.Telephone.y) {
 			for (int i = 0; i < host.length; i++) {
+				int damage = Matrix.hostages[i].damage + 2 * (time) - numOfPills * 22;
+				if (damage >= 100) {
+					if (host[i] == 1)
+						host[i] = 5;
+				}
 				if (host[i] == 1) {
 					cnt++;
 					new_host[i] = 3;
@@ -171,10 +179,10 @@ public class Actions {
 		StringBuilder path = new StringBuilder(node.path.toString());
 
 		for (int i = 0; i < Matrix.pills.length; i++) {
-			if (Matrix.pills[i].x == x && Matrix.pills[i].y == y && ((1 << i) & pill) == 0) {
+			if (Matrix.pills[i].x == x && Matrix.pills[i].y == y && ((pill >> i) & 1) == 0) {
 				pill |= (1 << i);
-				return new Node(x, y, host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-						path.append("pill,"));
+				return new Node(x, y, host.clone(), pill, (short) (time + 1), ag.clone(),
+						(byte) Math.max(0, node.damageNeo - 20), path.append("takePill,"));
 			}
 		}
 		return null;
@@ -225,7 +233,7 @@ public class Actions {
 				new_host[i] = 6;
 				cnt++;
 			}
-			if (h.position.x == x && h.position.y == y && (host[i] == 0 && damage >= 98))
+			if (h.position.x == x && h.position.y == y && (host[i] == 0 && damage >= 98) && host[i] == 0)
 				illegal = true;
 		}
 
@@ -235,8 +243,8 @@ public class Actions {
 				cnt++;
 			}
 		}
-		if (node.damageNeo - 20 * numOfPills >= 100)
-			return null;
+		if (node.damageNeo >= 100)
+			cnt = 0;
 		if (illegal)
 			cnt = 0;
 

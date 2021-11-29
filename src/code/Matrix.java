@@ -2,6 +2,7 @@ package code;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -16,7 +17,9 @@ public class Matrix extends General_Search {
 	static Position[] pills;
 	static Position Neo, Telephone;
 	static Position[] pads, agents;
-	static boolean vis[][][][][][];
+	static HashSet<String> vis;
+
+//	static boolean vis[][][][][][];
 
 	static int rand(int l, int r) {
 
@@ -29,6 +32,12 @@ public class Matrix extends General_Search {
 		public Position(int a, int b) {
 			x = a;
 			y = b;
+		}
+
+		@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return "(" + x + " " + y + ")";
 		}
 	}
 
@@ -57,6 +66,7 @@ public class Matrix extends General_Search {
 					Rem.add(new Position(i, j));
 
 		Position pos = Rem.get(rand(0, Rem.size() - 1));
+		String grid2 = "5,5;2;3,2;0,1;4,1;0,3;1,2,4,2,4,2,1,2,0,4,3,0,3,0,0,4;1,1,77,3,4,34";
 
 		Taken[pos.x][pos.y] = true;
 
@@ -121,7 +131,7 @@ public class Matrix extends General_Search {
 		String pillloc[] = split[5].split(",");
 		String padloc[] = split[6].split(",");
 		String hostTemp[] = split[7].split(",");
-		c=num(split[1]);
+		c = num(split[1]);
 		n = num(size[0]);
 		m = num(size[1]);
 		Neo = new Position(num(neoloc[0]), num(neoloc[1]));
@@ -137,9 +147,11 @@ public class Matrix extends General_Search {
 		}
 		pads = new Position[padloc.length / 2];
 		for (int i = 0; i < pads.length / 2; i++) {
-			pads[i] = new Position(num(padloc[i * 2]), num(padloc[i * 2 + 1]));
-			pads[(i + pads.length / 2)] = new Position(num(padloc[(i + pads.length / 2) * 2]),
-					num(padloc[(i + pads.length / 2) * 2 + 1]));
+			pads[i] = new Position(num(padloc[i * 4]), num(padloc[i * 4 + 1]));
+//			pads[(i + pads.length / 2)] = new Position(num(padloc[(i + pads.length / 2) * 2]),
+//					num(padloc[(i + pads.length / 2) * 2 + 1]));
+
+			pads[(i + pads.length / 2)] = new Position(num(padloc[i * 4 + 2]), num(padloc[i * 4 + 3]));
 		}
 		hostages = new Hostage[hostTemp.length / 3];
 		for (int i = 0; i < hostages.length; i++) {
@@ -151,7 +163,7 @@ public class Matrix extends General_Search {
 	public static String solve(String grid, String strategy, boolean visualize) {
 
 		// parsing the input to gen init state (node)
-		
+
 		parse(grid);
 		cnt_states = 0;
 		Node node = new Node((byte) Neo.x, (byte) Neo.y, new byte[hostages.length], 0, (short) 0,
@@ -165,21 +177,33 @@ public class Matrix extends General_Search {
 
 	static boolean vis(Node n) {
 
-		byte killed = 0, lifted = 0, drops = 0, hostAg = 0;
-		for (byte h : n.host) {
-			if (h == 1 || h == 5)
-				lifted++;
-			if (h > 3)
-				killed++;
-			if (h == 3 || h == 4)
-				drops++;
-			if (h == 2)
-				hostAg++;
+		StringBuilder visited = new StringBuilder();
+		visited.append("" + n.x + n.y + n.damageNeo);
+
+//		byte killed = 0, lifted = 0, drops = 0, hostAg = 0;
+
+		for (byte a : n.agents) {
+			visited.append(a);
 		}
 
-		boolean f = vis[n.x][n.y][killed][lifted][drops][hostAg];
-		if (!f) {
-			vis[n.x][n.y][killed][lifted][drops][hostAg] = true;
+		for (byte h : n.host) {
+			visited.append(h);
+		}
+		visited.append("" + n.pill);
+
+//				
+//			if (h == 1 || h == 5)
+//				lifted++;
+//			if (h > 3)
+//				killed++;
+//			if (h == 3 || h == 4)
+//				drops++;
+//			if (h == 2)
+//				hostAg++;
+//	}
+
+		if (!vis.contains(visited.toString())) {
+			vis.add(visited.toString());
 			return false;
 		}
 		return true;
@@ -197,7 +221,7 @@ public class Matrix extends General_Search {
 		byte damageNeo = node.damageNeo;
 		int numOfPills = Integer.bitCount(pill);
 
-		boolean gameover = true;
+		boolean gameover = Telephone.x == x && Telephone.y == y && damageNeo < 100;
 		for (int i = 0; i < hostages.length; i++) {
 			int damage = hostages[i].damage + 2 * time - numOfPills * 22;
 			if (damage >= 100) {
@@ -214,6 +238,51 @@ public class Matrix extends General_Search {
 //		gameover |= damageNeo - 20 * numOfPills >= 100;
 
 		return gameover;
+
+	}
+
+	static Node updateNode(Node node) {
+		// host next step +2
+
+		byte x = node.x;
+		byte y = node.y;
+		byte[] host = node.host;
+		int pill = node.pill;
+		short time = node.time;
+		byte[] ag = node.agents;
+		byte damageNeo = node.damageNeo;
+		int numOfPills = Integer.bitCount(pill);
+		StringBuilder path = new StringBuilder(node.path.toString());
+
+		int deaths = 0;
+		int agents_killed = 0;
+
+		boolean gameover = Telephone.x == x && Telephone.y == y && damageNeo < 100;
+		for (int i = 0; i < hostages.length; i++) {
+			int damage = hostages[i].damage + 2 * time - numOfPills * 22;
+			if (damage >= 100) {
+				if (host[i] == 1)
+					host[i] = 5;
+				if (host[i] == 0)
+					host[i] = 2;
+			}
+			if (host[i] > 3)
+				deaths++;
+			if (host[i] == 6)
+				agents_killed++;
+			if (host[i] < 3 || host[i] == 5) {
+				gameover = false;
+			}
+		}
+
+		for (byte temp : ag) {
+			if (temp == 1)
+				agents_killed++;
+		}
+
+//		gameover |= damageNeo - 20 * numOfPills >= 100;
+
+		return new Node(x, y, host, pill, time, ag, damageNeo, path, deaths, agents_killed, gameover);
 
 	}
 
@@ -235,8 +304,9 @@ public class Matrix extends General_Search {
 	@Override
 	public String general_search(Node node, String strategy) {
 
-		vis = new boolean[Matrix.n][Matrix.m][Matrix.hostages.length + 1][Matrix.c + 1][Matrix.hostages.length
-				+ 1][Matrix.hostages.length + 1];
+		vis = new HashSet<String>();
+//		vis = new boolean[Matrix.n][Matrix.m][Matrix.hostages.length + 1][Matrix.c + 1][Matrix.hostages.length
+//				+ 1][Matrix.hostages.length + 1];
 		String sol = "";
 		if (strategy.equals("BF")) {
 			sol = BFS.bfs(node);
@@ -252,15 +322,18 @@ public class Matrix extends General_Search {
 
 		}
 		if (strategy.equals("GR1")) {
+			sol = GR.gr(node,1);
 
 		}
 		if (strategy.equals("GR2")) {
+			sol = GR.gr(node,2);
 
 		}
 		if (strategy.equals("AS1")) {
-
+			sol = AStar.AStar(node,1);
 		}
 		if (strategy.equals("AS2")) {
+			sol = AStar.AStar(node,2);
 
 		}
 
@@ -269,11 +342,20 @@ public class Matrix extends General_Search {
 
 	public static void main(String[] args) {
 		genGrid();
-		
-		String grid0 = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
-		String grid6 = "6,6;2;2,2;2,4;0,1,1,0,3,0,4,1,4,3,3,4,1,4,0,3;0,2;1,3,4,2,4,2,1,3;0,0,2,0,4,2,4,0,2,4,4,98,1,1,98";
 
-		System.out.println(solve(grid6, "DF", false));
+		String grid0 = "5,5;2;3,4;1,2;0,3,1,4;2,3;4,4,0,2,0,2,4,4;2,2,91,2,4,62";
+		String grid1 = "5,5;1;1,4;1,0;0,4;0,0,2,2;3,4,4,2,4,2,3,4;0,2,32,0,1,38";
+		String grid2 = "5,5;2;3,2;0,1;4,1;0,3;1,2,4,2,4,2,1,2,0,4,3,0,3,0,0,4;1,1,77,3,4,34";
+		String grid3 = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,1";
+		String grid4 = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,98,1,0,98";
+		String grid5 = "5,5;2;0,4;3,4;3,1,1,1;2,3;3,0,0,1,0,1,3,0;4,2,54,4,0,85,1,0,43";
+		String grid6 = "5,5;2;3,0;4,3;2,1,2,2,3,1,0,0,1,1,4,2,3,3,1,3,0,1;2,4,3,2,3,4,0,4;4,4,4,0,4,0,4,4;1,4,57,2,0,46";
+		String grid7 = "5,5;3;1,3;4,0;0,1,3,2,4,3,2,4,0,4;3,4,3,0,4,2;1,4,1,2,1,2,1,4,0,3,1,0,1,0,0,3;4,4,45,3,3,12,0,2,88";
+		String grid8 = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
+		String grid9 = "5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80";
+		String grid10 = "5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0;0,0,62,4,3,45,3,3,39,2,3,40";
+
+		System.out.println(solve(grid4, "D", false));
 	}
 
 }
