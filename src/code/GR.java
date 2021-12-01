@@ -6,193 +6,193 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class GR {
-//	static String rem1 = "down,up,left,fly,fly,down,down,right,takePill,left,right,left,up,right,up,down,left,left,kill,left,kill,left,takePill,right,left,down,down,";
+    //	static String rem1 = "down,up,left,fly,fly,down,down,right,takePill,left,right,left,up,right,up,down,left,left,kill,left,kill,left,takePill,right,left,down,down,";
 //	static String rem = "down,up,left,fly,fly,down,down,right,takePill,";
-	static String gr(Node node, int type) {
+    static String gr(Node node, int type) {
 
-		PriorityQueue<Node> q = new PriorityQueue();
+        PriorityQueue<Node> q = new PriorityQueue();
 //		Queue<Node> q = new LinkedList<Node>();
-		q.add(node);
+        q.add(node);
 
 //		Matrix.vis = new boolean[Matrix.n][Matrix.m][Matrix.hostages.length + 1][Matrix.c + 1][Matrix.hostages.length + 1][Matrix.hostages.length + 1];
-		while (!q.isEmpty()) {
+        while (!q.isEmpty()) {
 //			System.out.println(Matrix.vis.size());
-			Node n = q.poll();
+            Node n = q.poll();
 //			if (n.path.toString().equals(rem)) {
 ////				System.out.println(n.path.toString());
 //				System.out.println(Arrays.toString(n.host_damage));
 //				System.out.println(Arrays.toString(n.host));
 //			}
 //			System.out.println(n.host);
-			Matrix.cnt_states++;
+            Matrix.cnt_states++;
 //			boolean gameover = Matrix.nextStep(n);
-			if (n.gameover)
-				return Matrix.gameover(n);
+            if (n.gameover)
+                return Matrix.gameover(n);
 
-			Node action = Actions.carry(n);
-			if (action != null) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            Node action = Actions.carry(n);
+            if (action != null) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 //			}
-			action = Actions.drop(n);
-			if (action != null) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.drop(n);
+            if (action != null) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
 //				System.out.println("drop");
 
 //			if (valid(n.x, n.y) && !vis[n.x][n.y][killed][lifted][drops][hostAg]) {
 
-			action = Actions.kill(n);
-			if (action != null) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.kill(n);
+            if (action != null) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
 //			}
 
-			action = Actions.up(n);
-			if (action != null && !Matrix.vis(action)) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.up(n);
+            if (action != null && !Matrix.vis(action)) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
-			action = Actions.down(n);
-			if (action != null && !Matrix.vis(action)) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.down(n);
+            if (action != null && !Matrix.vis(action)) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
-			action = Actions.left(n);
-			if (action != null && !Matrix.vis(action)) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
+            action = Actions.left(n);
+            if (action != null && !Matrix.vis(action)) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
-			action = Actions.right(n);
-			if (action != null && !Matrix.vis(action)) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.right(n);
+            if (action != null && !Matrix.vis(action)) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
-			action = Actions.fly(n);
-			if (action != null && !Matrix.vis(action)) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.fly(n);
+            if (action != null && !Matrix.vis(action)) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
-			action = Actions.takePill(n);
-			if (action != null) {
-				int[] hu = new int[2];
-				if (type == 1)
-					hu = heuristic1(action);
-				else
-					hu = heuristic2(action);
+            action = Actions.takePill(n);
+            if (action != null) {
+                int[] hu = new int[2];
+                if (type == 1)
+                    hu = heuristic1(action);
+                else
+                    hu = heuristic2(action);
 
-				action.deaths = 0;
-				action.agents_killed = hu[1];
-				q.add(action);
-			}
+                action.deaths = 0;
+                action.agents_killed = hu[1];
+                q.add(action);
+            }
 
-		}
+        }
 
-		return "No Solution";
+        return "No Solution";
 
-	}
+    }
 
-	static int[] heuristic3(Node n) {
-		int kills = 0;
-		for (int h : n.host) {
-			if (h == 2)
-				kills++;
-		}
-		return new int[] { 0, kills };
-	}
+    static int[] heuristic3(Node n) {
+        int kills = 0;
+        for (int h : n.host) {
+            if (h == 2)
+                kills++;
+        }
+        return new int[]{0, kills};
+    }
 
-	static int[] heuristic1(Node n) {
-		int kills = 0;
-		int deaths = 0;
-		int mskstatus = 0;
-		int mskcarry = 0;
-		for (int i = 0; i < n.host.length; i++) {
-			if (n.host[i] > 1)
-				mskstatus |= (1 << i);
-			if (n.host[i] == 1 || n.host[i] == 5)
-				mskcarry |= (1 << i);
-		}
-		deaths = n.host.length - Matrix.dp[n.x][n.y][Integer.bitCount(n.pill)][mskstatus][mskcarry];
-		return new int[] { deaths, kills };
-	}
+    static int[] heuristic1(Node n) {
+        int kills = 0;
+        int deaths = 0;
+        int mskstatus = 0;
+        int mskcarry = 0;
+        for (int i = 0; i < n.host.length; i++) {
+            if (n.host[i] > 1)
+                mskstatus |= (1 << i);
+            if (n.host[i] == 1 || n.host[i] == 5)
+                mskcarry |= (1 << i);
+        }
+        deaths = n.host.length - Matrix.dp(n.x, n.y, mskstatus, mskcarry, 0);
+        return new int[]{deaths, kills};
+    }
 
-	static int[] heuristic2(Node n) {
-		// TODO Auto-generated method stub
-		int kills = 0;
-		int deaths = 0;
-		for (int i = 0; i < n.host.length; i++) {
-			if (n.host[i] == 2)
-				kills++;
-			if (n.host_damage[i] == 98 || n.host_damage[i] == 99)
-				deaths++;
-		}
-		return new int[] { deaths, kills + deaths };
-	}
+    static int[] heuristic2(Node n) {
+        // TODO Auto-generated method stub
+        int kills = 0;
+        int deaths = 0;
+        for (int i = 0; i < n.host.length; i++) {
+            if (n.host[i] == 2)
+                kills++;
+            if (n.host_damage[i] == 98 || n.host_damage[i] == 99)
+                deaths++;
+        }
+        return new int[]{deaths, kills + deaths};
+    }
 }
 
 // grid flatened cell i, j i*m+j
