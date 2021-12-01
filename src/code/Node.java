@@ -3,15 +3,16 @@ package code;
 public class Node implements Comparable<Node> {
 
 	byte x, y, damageNeo, agents[]; // pos of neo
-	byte[] host; // 0 means alive, 1 means carried, 2 means agent, 3 means dropped alive ,
-					// 4 dropped killed, 5 carried killed ,6 means killed after being agent
+	byte[] host, host_damage; // 0 means alive, 1 means carried, 2 means agent, 3 means dropped alive ,
+	// 4 dropped killed, 5 carried killed ,6 means killed after being agent
 	int pill; // 1 taken, 0 not_taken
 	short time;
 	int deaths, agents_killed;
 	StringBuilder path = new StringBuilder();
 	boolean gameover;
 
-	public Node(byte x, byte y, byte[] host, int pill, short time, byte[] agents, byte damage, StringBuilder path) {
+	public Node(byte x, byte y, byte[] host, int pill, short time, byte[] agents, byte damage, StringBuilder path,
+			byte[] hd) {
 		this.x = x;
 		this.y = y;
 		this.host = host;
@@ -20,10 +21,11 @@ public class Node implements Comparable<Node> {
 		this.agents = agents;
 		this.damageNeo = damage;
 		this.path = path;
+		this.host_damage = hd;
 	}
 
 	public Node(byte x, byte y, byte[] host, int pill, short time, byte[] agents, byte damage, StringBuilder path,
-			int d, int k, boolean g) {
+			int d, int k, boolean g, byte[] hd) {
 		this.x = x;
 		this.y = y;
 		this.host = host;
@@ -35,6 +37,7 @@ public class Node implements Comparable<Node> {
 		this.deaths = d;
 		this.agents_killed = k;
 		this.gameover = g;
+		this.host_damage = hd;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class Node implements Comparable<Node> {
 //			if (h == 6)
 //				kills++;
 //		}
-		if(deaths == n.deaths)
+		if (deaths == n.deaths)
 			return agents_killed - n.agents_killed;
 		return deaths - n.deaths;
 

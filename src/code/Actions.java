@@ -11,7 +11,7 @@ public class Actions {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -24,42 +24,59 @@ public class Actions {
 		}
 		for (int i = 0; i < host.length; i++) {
 			if (Matrix.hostages[i].position.x == x && Matrix.hostages[i].position.y == y - 1
-					&& (host[i] == 2 || Matrix.hostages[i].damage >= 98))
+					&& (host[i] == 2 || (node.host_damage[i] >= 98 && host[i] == 0)))
 				f = false;
 		}
-		return f ? new Node(x, (byte) (y - 1), host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("left,")) : null;
+
+		if (f) {
+			byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+			Node ret = new Node(x, (byte) (y - 1), host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+					path.append("left,"), host_damage);
+			return Matrix.updateNode(ret);
+		}
+		return null;
+//		return f ? new Node(x, (byte) (y - 1), host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+//				path.append("left,"), host_damage) : null;
 	}
 
 	static Node right(Node node) {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
 		StringBuilder path = new StringBuilder(node.path.toString());
 
-		boolean f = y + 1 < Matrix.m;
+		boolean f = (y + 1) < Matrix.m;
 		for (int i = 0; i < Matrix.agents.length; i++) {
 			if (Matrix.agents[i].x == x && Matrix.agents[i].y == y + 1 && ag[i] == 0)
 				f = false;
 		}
 		for (int i = 0; i < host.length; i++) {
 			if (Matrix.hostages[i].position.x == x && Matrix.hostages[i].position.y == y + 1
-					&& (host[i] == 2 || Matrix.hostages[i].damage >= 98))
+					&& (host[i] == 2 || (node.host_damage[i] >= 98 && host[i] == 0)))
 				f = false;
 		}
-		return f ? new Node(x, (byte) (y + 1), host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("right,")) : null;
+		if (f) {
+			byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+			Node ret = new Node(x, (byte) (y + 1), host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+					path.append("right,"), host_damage);
+			return Matrix.updateNode(ret);
+		}
+		return null;
+//		byte[] host_damage = f ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
+//
+//		return f ? new Node(x, (byte) (y + 1), host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+//				path.append("right,"), host_damage) : null;
 	}
 
 	static Node down(Node node) {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -72,18 +89,29 @@ public class Actions {
 		}
 		for (int i = 0; i < host.length; i++) {
 			if (Matrix.hostages[i].position.x == x + 1 && Matrix.hostages[i].position.y == y
-					&& (host[i] == 2 || Matrix.hostages[i].damage >= 98))
+					&& (host[i] == 2 || (node.host_damage[i] >= 98 && host[i] == 0)))
 				f = false;
 		}
-		return f ? new Node((byte) (x + 1), y, host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("down,")) : null;
+
+		if (f) {
+			byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+			Node ret = new Node((byte) (x + 1), y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+					path.append("down,"), host_damage);
+			return Matrix.updateNode(ret);
+		}
+		return null;
+
+//		byte[] host_damage = f ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
+//
+//		return f ? new Node((byte) (x + 1), y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+//				path.append("down,"), host_damage) : null;
 	}
 
 	static Node up(Node node) {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -96,46 +124,68 @@ public class Actions {
 		}
 		for (int i = 0; i < host.length; i++) {
 			if (Matrix.hostages[i].position.x == x - 1 && Matrix.hostages[i].position.y == y
-					&& (host[i] == 2 || Matrix.hostages[i].damage >= 98))
+					&& (host[i] == 2 || (node.host_damage[i] >= 98 && host[i] == 0)))
 				f = false;
 		}
-		return f ? new Node((byte) (x - 1), y, host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-				path.append("up,")) : null;
+
+		if (f) {
+			byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+			Node ret = new Node((byte) (x - 1), y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+					path.append("up,"), host_damage);
+			return Matrix.updateNode(ret);
+		}
+		return null;
+
+//		byte[] host_damage = f ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
+//
+//		return f ? new Node((byte) (x - 1), y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+//				path.append("up,"), host_damage) : null;
 	}
 
 	static Node drop(Node node) {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
 		int numOfPills = Integer.bitCount(pill);
 		StringBuilder path = new StringBuilder(node.path.toString());
 
-		byte cnt = 0;
+		boolean f = false;
 		byte[] new_host = host.clone();
 		if (x == Matrix.Telephone.x && y == Matrix.Telephone.y) {
 			for (int i = 0; i < host.length; i++) {
-				int damage = Matrix.hostages[i].damage + 2 * (time) - numOfPills * 22;
+				int damage = node.host_damage[i];
 				if (damage >= 100) {
 					if (host[i] == 1)
 						host[i] = 5;
 				}
 				if (host[i] == 1) {
-					cnt++;
+					f = true;
 					new_host[i] = 3;
 				}
 				if (host[i] == 5) {
-					cnt++;
+					f = true;
 					new_host[i] = 4;
 				}
 			}
 		}
 
-		return cnt == 0 ? null
-				: new Node(x, y, new_host, pill, (short) (time + 1), ag.clone(), node.damageNeo, path.append("drop,"));
+		if (f) {
+			byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+			Node ret = new Node(x, y, new_host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+					path.append("drop,"), host_damage);
+			return Matrix.updateNode(ret);
+		}
+		return null;
+
+//		byte[] host_damage = cnt != 0 ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
+//
+//		return cnt == 0 ? null
+//				: new Node(x, y, new_host, pill, (short) (time + 1), ag.clone(), node.damageNeo, path.append("drop,"),
+//						host_damage);
 
 	}
 
@@ -143,7 +193,7 @@ public class Actions {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -158,8 +208,10 @@ public class Actions {
 			Hostage h = Matrix.hostages[i];
 			if (h.position.x == x && h.position.y == y && host[i] == 0 && cnt_carried_host < Matrix.c) {
 				new_host[i] = 1;
-				return new Node(x, y, new_host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
-						path.append("carry,"));
+				byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+				Node ret = new Node(x, y, new_host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
+						path.append("carry,"), host_damage);
+				return Matrix.updateNode(ret);
 
 			}
 		}
@@ -172,17 +224,20 @@ public class Actions {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
 		StringBuilder path = new StringBuilder(node.path.toString());
+		byte[] host_damage = node.host_damage;
 
 		for (int i = 0; i < Matrix.pills.length; i++) {
 			if (Matrix.pills[i].x == x && Matrix.pills[i].y == y && ((pill >> i) & 1) == 0) {
 				pill |= (1 << i);
-				return new Node(x, y, host.clone(), pill, (short) (time + 1), ag.clone(),
-						(byte) Math.max(0, node.damageNeo - 20), path.append("takePill,"));
+				host_damage = update_hostageDamage(host_damage, (byte) -20);
+				Node ret = new Node(x, y, host, pill, (short) (time + 1), ag.clone(),
+						(byte) Math.max(0, node.damageNeo - 20), path.append("takePill,"), host_damage);
+				return Matrix.updateNode(ret);
 			}
 		}
 		return null;
@@ -193,7 +248,7 @@ public class Actions {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -203,8 +258,10 @@ public class Actions {
 			if (Matrix.pads[i].x == x && Matrix.pads[i].y == y) {
 				x = (byte) Matrix.pads[(i + Matrix.pads.length / 2) % Matrix.pads.length].x;
 				y = (byte) Matrix.pads[(i + Matrix.pads.length / 2) % Matrix.pads.length].y;
-				return new Node(x, y, host.clone(), pill, (short) (time + 1), ag.clone(), node.damageNeo,
-						path.append("fly,"));
+				byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+				Node ret = new Node(x, y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo, path.append("fly,"),
+						host_damage);
+				return Matrix.updateNode(ret);
 			}
 		}
 
@@ -214,7 +271,7 @@ public class Actions {
 	static Node kill(Node node) { // number of kills to know neo's damage.
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -224,16 +281,16 @@ public class Actions {
 		byte[] new_host = host.clone();
 		byte[] new_ag = ag.clone();
 
-		int cnt = 0;
+		int cnt = 0;	
 		boolean illegal = false;
 		for (int i = 0; i < Matrix.hostages.length; i++) {
 			Hostage h = Matrix.hostages[i];
-			int damage = h.damage + 2 * time - numOfPills * 22;
+			int damage = node.host_damage[i];
 			if (neighbour(x, y, h.position) && host[i] == 2) {
 				new_host[i] = 6;
 				cnt++;
 			}
-			if (h.position.x == x && h.position.y == y && (host[i] == 0 && damage >= 98) && host[i] == 0)
+			if (h.position.x == x && h.position.y == y && host[i] == 0 && damage >= 98)
 				illegal = true;
 		}
 
@@ -243,21 +300,37 @@ public class Actions {
 				cnt++;
 			}
 		}
-		if (node.damageNeo >= 100)
+		if (node.damageNeo + 20 >= 100 || illegal)
 			cnt = 0;
-		if (illegal)
-			cnt = 0;
-
+		
+		if (cnt!=0) {
+			byte[] host_damage = update_hostageDamage(node.host_damage, (byte) 2);
+			Node ret = new Node(x, y, new_host, pill, (short) (time + 1), new_ag, (byte) (node.damageNeo + 20),
+					path.append("kill,"), host_damage);
+			return Matrix.updateNode(ret);
+		}
+		return null;
 //		System.out.println(cnt + " " + Arrays.toString(host));
-		return cnt == 0 ? null
-				: new Node(x, y, new_host, pill, (short) (time + 1), new_ag, (byte) (node.damageNeo + 20),
-						path.append("kill,"));
+//		byte[] host_damage = cnt != 0 ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
+//
+//		return cnt == 0 ? null
+//				: new Node(x, y, new_host, pill, (short) (time + 1), new_ag, (byte) (node.damageNeo + 20),
+//						path.append("kill,"), host_damage);
 	}
 
 	static boolean neighbour(int x, int y, Position p) {
 		if ((y == p.y && (x == p.x - 1 || x == p.x + 1)) || (x == p.x && (y == p.y - 1 || y == p.y + 1)))
 			return true;
 		return false;
+	}
+
+	static byte[] update_hostageDamage(byte[] hd, byte val) {
+		byte[] ret = new byte[hd.length];
+		for (int i = 0; i < ret.length; i++) {
+			if (hd[i] < 100)
+				ret[i] = (byte) Math.max(0, hd[i] + val);
+		}
+		return ret;
 	}
 
 }

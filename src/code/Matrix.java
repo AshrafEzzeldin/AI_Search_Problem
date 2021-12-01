@@ -3,14 +3,14 @@ package code;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
+
 
 public class Matrix extends General_Search {
 
 	static int n, m, c, cnt_states;
 	static char[][] g;
+	static int[][] padsIDs;
 	static Random Rand;
 	static boolean[][] Taken;
 	static Hostage[] hostages;
@@ -18,8 +18,6 @@ public class Matrix extends General_Search {
 	static Position Neo, Telephone;
 	static Position[] pads, agents;
 	static HashSet<String> vis;
-
-//	static boolean vis[][][][][][];
 
 	static int rand(int l, int r) {
 
@@ -136,6 +134,10 @@ public class Matrix extends General_Search {
 		m = num(size[1]);
 		Neo = new Position(num(neoloc[0]), num(neoloc[1]));
 		Telephone = new Position(num(telloc[0]), num(telloc[1]));
+		padsIDs = new int[n][m];
+		for (int i = 0; i < n; i++) {
+			Arrays.fill(padsIDs[i], -1);
+		}
 
 		agents = new Position[agentloc.length / 2];
 		for (int i = 0; i < agents.length; i++) {
@@ -152,6 +154,8 @@ public class Matrix extends General_Search {
 //					num(padloc[(i + pads.length / 2) * 2 + 1]));
 
 			pads[(i + pads.length / 2)] = new Position(num(padloc[i * 4 + 2]), num(padloc[i * 4 + 3]));
+			padsIDs[pads[i].x][pads[i].y] = i;
+			padsIDs[pads[(i + pads.length / 2)].x][pads[(i + pads.length / 2)].y] = (i + pads.length / 2);
 		}
 		hostages = new Hostage[hostTemp.length / 3];
 		for (int i = 0; i < hostages.length; i++) {
@@ -160,14 +164,29 @@ public class Matrix extends General_Search {
 		}
 	}
 
+	static byte[] find_host_damage() {
+		byte[] host_damage = new byte[hostages.length];
+		for (int i = 0; i < hostages.length; i++) {
+			host_damage[i] = (byte) hostages[i].damage;
+
+		}
+		return host_damage;
+	}
+
 	public static String solve(String grid, String strategy, boolean visualize) {
 
 		// parsing the input to gen init state (node)
 
 		parse(grid);
 		cnt_states = 0;
+		byte[] host_damage = find_host_damage();
+
 		Node node = new Node((byte) Neo.x, (byte) Neo.y, new byte[hostages.length], 0, (short) 0,
-				new byte[agents.length], (byte) 0, new StringBuilder());
+				new byte[agents.length], (byte) 0, new StringBuilder(), host_damage);
+
+		fill_in_dpArray();
+
+		System.out.println(dp[0][0][0][0][1]);
 
 		String sol = new Matrix().general_search(node, strategy);
 
@@ -214,7 +233,7 @@ public class Matrix extends General_Search {
 
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
@@ -243,23 +262,25 @@ public class Matrix extends General_Search {
 
 	static Node updateNode(Node node) {
 		// host next step +2
-
+		if (node == null)
+			return null;
 		byte x = node.x;
 		byte y = node.y;
-		byte[] host = node.host;
+		byte[] host = node.host.clone();
 		int pill = node.pill;
 		short time = node.time;
 		byte[] ag = node.agents;
 		byte damageNeo = node.damageNeo;
 		int numOfPills = Integer.bitCount(pill);
 		StringBuilder path = new StringBuilder(node.path.toString());
+		byte[] host_damage = node.host_damage.clone();
 
 		int deaths = 0;
 		int agents_killed = 0;
 
 		boolean gameover = Telephone.x == x && Telephone.y == y && damageNeo < 100;
 		for (int i = 0; i < hostages.length; i++) {
-			int damage = hostages[i].damage + 2 * time - numOfPills * 22;
+			int damage = host_damage[i];
 			if (damage >= 100) {
 				if (host[i] == 1)
 					host[i] = 5;
@@ -282,7 +303,7 @@ public class Matrix extends General_Search {
 
 //		gameover |= damageNeo - 20 * numOfPills >= 100;
 
-		return new Node(x, y, host, pill, time, ag, damageNeo, path, deaths, agents_killed, gameover);
+		return new Node(x, y, host, pill, time, ag, damageNeo, path, deaths, agents_killed, gameover, host_damage);
 
 	}
 
@@ -322,22 +343,131 @@ public class Matrix extends General_Search {
 
 		}
 		if (strategy.equals("GR1")) {
-			sol = GR.gr(node,1);
+			sol = GR.gr(node, 1);
 
 		}
 		if (strategy.equals("GR2")) {
-			sol = GR.gr(node,2);
+			sol = GR.gr(node, 2);
 
 		}
 		if (strategy.equals("AS1")) {
-			sol = AStar.AStar(node,1);
+			sol = AStar.AStar(node, 1);
 		}
 		if (strategy.equals("AS2")) {
-			sol = AStar.AStar(node,2);
-
+			sol = AStar.AStar(node, 2);
 		}
 
 		return sol;
+	}
+
+	static int dp[][][][][]; // x, y, num of taken pills, msk live or dead, msk carry or not
+	static int[] dx = new int[] { -1, 0, 1, 0 };
+	static int[] dy = new int[] { 0, -1, 0, 1 };
+
+	static boolean valid(int x, int y) {
+		return x >= 0 && x < cnt_states && y >= 0 && y < m;
+	}
+
+	static int updateMSK(int mskstatus, int mskcarry, int time, int takenpills) {
+		for (int i = 0; i < hostages.length; i++) {
+			int h = hostages[i].damage + time * 2 - takenpills * 22;
+			if (h >= 100) {
+				mskstatus |= (1 << i);
+			}
+		}
+		return mskstatus;
+	}
+
+	static void fill_in_dpArray() {
+		int fourth = 1 << hostages.length;
+		dp = new int[n][m][pills.length + 1][fourth][1 << hostages.length];
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				for (int z = 0; z < pills.length + 1; z++) {
+					for (int k = 0; k < fourth; k++) {
+						Arrays.fill(dp[i][j][z][k], -1);
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				for (int z = 0; z < pills.length + 1; z++) {
+					for (int k = 0; k < fourth; k++) {
+						for (int m = 0; m < fourth; m++) {
+							if (Integer.bitCount(m) <= c) {
+//								System.out.println(k + " " + m);
+								dp(i, j, z, k, m, 0);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	static int dp(int x, int y, int takenpills, int mskstatus, int mskcarry, int time) {
+		// base case;
+
+//		System.out.println(mskstatus + " " + mskcarry);
+		int carried = Integer.bitCount(mskcarry);
+		mskstatus = updateMSK(mskstatus, mskcarry, time, takenpills);
+
+		if (Integer.bitCount(mskstatus) == hostages.length && Integer.bitCount(mskcarry) == 0)
+			return 0;
+
+		if (dp[x][y][takenpills][mskstatus][mskcarry] != -1)
+			return dp[x][y][takenpills][mskstatus][mskcarry];
+
+		int cnt = 0;
+		for (int i = 0; i < 4; i++) {
+			if (valid(x + dx[i], y + dy[i])) {
+				cnt = Math.max(cnt, dp(x + dx[i], y + dy[i], takenpills, mskstatus, mskcarry, time + 1));
+			}
+		}
+
+		for (int i = 0; i < hostages.length && carried < c; i++) {
+			if ((mskstatus & (1 << i)) == 0 && (mskcarry & (1 << i)) == 0 && hostages[i].position.x == x
+					&& hostages[i].position.y == y) {
+				int temp = dp(x, y, takenpills, mskstatus, mskcarry | (1 << i), time + 1);
+				cnt = Math.max(cnt, temp);
+			}
+
+		}
+
+//		for (int i = 0; i < pads.length; i++) {
+//			if(pads[i].x == x && pads[i].y == y) {
+//				int to = (i + pads.length / 2) % pads.length;
+//				int new_x = pads[to].x;
+//				int new_y = pads[to].y;
+//				cnt = Math.max(cnt, dp(new_x, new_y, takenpills, mskstatus, mskcarry, time + 1));
+//			}
+//			
+//		}
+
+		if (padsIDs[x][y] != -1) {
+			int id = padsIDs[x][y];
+			int to = (id + (pads.length / 2)) % pads.length;
+			int new_x = pads[to].x;
+			int new_y = pads[to].y;
+			if (x == new_x && y == new_y)
+				System.out.println("why");
+			cnt = Math.max(cnt, dp(new_x, new_y, takenpills, mskstatus, mskcarry, time + 1));
+
+		}
+
+		if (takenpills < pills.length)
+			cnt = Math.max(cnt, dp(x, y, takenpills + 1, mskstatus, mskcarry, time + 1));
+		
+		if (x == Telephone.x && y == Telephone.y) {
+			mskcarry &= (~mskstatus);
+			System.out.println(mskstatus);
+			System.out.println(mskcarry);
+			int temp = Integer.bitCount(mskcarry) + dp(x, y, takenpills, mskstatus | mskcarry, 0, time + 1);
+			cnt = Math.max(cnt, temp);
+		}
+		return dp[x][y][takenpills][mskstatus][mskcarry] = cnt;
 	}
 
 	public static void main(String[] args) {
@@ -355,7 +485,7 @@ public class Matrix extends General_Search {
 		String grid9 = "5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80";
 		String grid10 = "5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0;0,0,62,4,3,45,3,3,39,2,3,40";
 
-		System.out.println(solve(grid4, "D", false));
+		System.out.println(solve(grid7, "GR1", false));
 	}
 
 }

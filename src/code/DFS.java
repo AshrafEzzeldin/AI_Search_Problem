@@ -9,85 +9,83 @@ public class DFS {
 	static int time = -1;
 
 	static String dfs(Node n) {
-		
+
 //		System.out.println(Arrays.toString(n.host));
 		Matrix.cnt_states++;
-		boolean gameover = Matrix.nextStep(n);
 
-		if (gameover)
-			return Matrix.gameover(n) ;
+		if (n.gameover)
+			return Matrix.gameover(n);
 
 		if (time == n.time)
 			return "No Solution";
 
 		String ret = "No Solution";
 
-		Node takePill = Actions.takePill(n);
-		if (takePill != null) {
+		Node action = Actions.takePill(n);
+		if (action != null) {
 //			System.out.println("take pill");
-			ret = dfs(takePill);
+
+			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
 
 		}
 
-		Node carry = Actions.carry(n);
-		if (carry != null) {
+		action = Actions.carry(n);
+		if (action != null) {
 //			System.out.println("carry");
-			ret = dfs(carry);
+			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
 		}
-		
-		Node drop = Actions.drop(n);
-		if (drop != null) {
-			ret = dfs(drop);
+
+		action = Actions.drop(n);
+		if (action != null) {
+			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
 //			System.out.println("drop");
 		}
 
-		
-		Node up = Actions.up(n);
-		if (up != null && !Matrix.vis(up))
-			ret = dfs(up);
+		action = Actions.up(n);
+		if (action != null && !Matrix.vis(action))
+			ret = dfs(Matrix.updateNode(action));
 		if (!ret.equals("No Solution"))
 			return ret;
 
-		Node down = Actions.down(n);
-		if (down != null && !Matrix.vis(down))
-			ret = dfs(down);
+		action = Actions.down(n);
+		if (action != null && !Matrix.vis(action))
+			ret = dfs(Matrix.updateNode(action));
 		if (!ret.equals("No Solution"))
 			return ret;
 
-		Node left = Actions.left(n);
-		if (left != null && !Matrix.vis(left))
-			ret = dfs(left);
+		action = Actions.left(n);
+		if (action != null && !Matrix.vis(action))
+			ret = dfs(Matrix.updateNode(action));
 		if (!ret.equals("No Solution"))
 			return ret;
 
-		Node right = Actions.right(n);
-		if (right != null && !Matrix.vis(right))
-			ret = dfs(right);
+		action = Actions.right(n);
+		if (action != null && !Matrix.vis(action))
+			ret = dfs(Matrix.updateNode(action));
 		if (!ret.equals("No Solution"))
 			return ret;
 
-
-		Node fly = Actions.fly(n);
-		if (fly != null && !Matrix.vis(fly))
-			ret = dfs(fly);
+		action = Actions.fly(n);
+		if (action != null && !Matrix.vis(action))
+			ret = dfs(Matrix.updateNode(action));
 		if (!ret.equals("No Solution"))
 			return ret;
-		
-		Node kill = Actions.kill(n);
-		if (kill != null) {
+
+		action = Actions.kill(n);
+		if (action != null) {
 //			System.out.println("kill");
-			ret = dfs(kill);
+			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
-			
+
 		}
-		
+
 		return ret;
 
 	}
