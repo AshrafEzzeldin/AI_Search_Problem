@@ -35,8 +35,6 @@ public class Actions {
 			return Matrix.updateNode(ret);
 		}
 		return null;
-//		return f ? new Node(x, (byte) (y - 1), host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
-//				path.append("left,"), host_damage) : null;
 	}
 
 	static Node right(Node node) {
@@ -66,10 +64,6 @@ public class Actions {
 			return Matrix.updateNode(ret);
 		}
 		return null;
-//		byte[] host_damage = f ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
-//
-//		return f ? new Node(x, (byte) (y + 1), host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
-//				path.append("right,"), host_damage) : null;
 	}
 
 	static Node down(Node node) {
@@ -101,10 +95,6 @@ public class Actions {
 		}
 		return null;
 
-//		byte[] host_damage = f ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
-//
-//		return f ? new Node((byte) (x + 1), y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
-//				path.append("down,"), host_damage) : null;
 	}
 
 	static Node up(Node node) {
@@ -136,10 +126,6 @@ public class Actions {
 		}
 		return null;
 
-//		byte[] host_damage = f ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
-//
-//		return f ? new Node((byte) (x - 1), y, host, pill, (short) (time + 1), ag.clone(), node.damageNeo,
-//				path.append("up,"), host_damage) : null;
 	}
 
 	static Node drop(Node node) {
@@ -181,11 +167,6 @@ public class Actions {
 		}
 		return null;
 
-//		byte[] host_damage = cnt != 0 ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
-//
-//		return cnt == 0 ? null
-//				: new Node(x, y, new_host, pill, (short) (time + 1), ag.clone(), node.damageNeo, path.append("drop,"),
-//						host_damage);
 
 	}
 
@@ -310,12 +291,6 @@ public class Actions {
 			return Matrix.updateNode(ret);
 		}
 		return null;
-//		System.out.println(cnt + " " + Arrays.toString(host));
-//		byte[] host_damage = cnt != 0 ? update_hostageDamage(node.host_damage, (byte) 2) : node.host_damage.clone();
-//
-//		return cnt == 0 ? null
-//				: new Node(x, y, new_host, pill, (short) (time + 1), new_ag, (byte) (node.damageNeo + 20),
-//						path.append("kill,"), host_damage);
 	}
 
 	static boolean neighbour(int x, int y, Position p) {

@@ -10,7 +10,6 @@ public class DFS {
 
 	static String dfs(Node n) {
 
-//		System.out.println(Arrays.toString(n.host));
 		Matrix.cnt_states++;
 
 		if (n.gameover)
@@ -23,17 +22,13 @@ public class DFS {
 
 		Node action = Actions.takePill(n);
 		if (action != null) {
-//			System.out.println("take pill");
-
 			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
-
 		}
 
 		action = Actions.carry(n);
 		if (action != null) {
-//			System.out.println("carry");
 			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
@@ -44,7 +39,6 @@ public class DFS {
 			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
-//			System.out.println("drop");
 		}
 
 		action = Actions.up(n);
@@ -79,11 +73,9 @@ public class DFS {
 
 		action = Actions.kill(n);
 		if (action != null) {
-//			System.out.println("kill");
 			ret = dfs(Matrix.updateNode(action));
 			if (!ret.equals("No Solution"))
 				return ret;
-
 		}
 
 		return ret;

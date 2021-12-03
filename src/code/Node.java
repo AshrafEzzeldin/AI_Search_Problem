@@ -2,15 +2,25 @@ package code;
 
 public class Node implements Comparable<Node> {
 
-	byte x, y, damageNeo, agents[]; // pos of neo
-	byte[] host, host_damage; // 0 means alive, 1 means carried, 2 means agent, 3 means dropped alive ,
-	// 4 dropped killed, 5 carried killed ,6 means killed after being agent
-	int pill; // 1 taken, 0 not_taken
+	// location of Neo and his damage and if agent is alive or killed
+	byte x, y, damageNeo, agents[];
+	// 0 means alive, 1 means carried, 2 means agent, 3 means dropped alive ,
+	// 4 dropped dead, 5 carried dead ,6 means killed after being agent
+	byte[] host;
+	// the damage of hostages
+	byte[] host_damage;
+	// mask for pills, 1 taken, 0 not_taken
+	int pill;
+	// calculate the depth
 	short time;
-	int deaths, agents_killed;
+	// number of deaths, kills and the cost for (UC greedy and AStart)
+	int deaths, agents_killed, cost;
+	// the path till the goal
 	StringBuilder path = new StringBuilder();
+	// check if we reach a goal
 	boolean gameover;
 
+	// constructor without deaths, agents_killed, cost and gameover
 	public Node(byte x, byte y, byte[] host, int pill, short time, byte[] agents, byte damage, StringBuilder path,
 			byte[] hd) {
 		this.x = x;
@@ -24,8 +34,9 @@ public class Node implements Comparable<Node> {
 		this.host_damage = hd;
 	}
 
+	// constructor with deaths, agents_killed, cost and gameover
 	public Node(byte x, byte y, byte[] host, int pill, short time, byte[] agents, byte damage, StringBuilder path,
-			int d, int k, boolean g, byte[] hd) {
+			int d, int k, int c, boolean g, byte[] hd) {
 		this.x = x;
 		this.y = y;
 		this.host = host;
@@ -36,35 +47,32 @@ public class Node implements Comparable<Node> {
 		this.path = path;
 		this.deaths = d;
 		this.agents_killed = k;
+		this.cost = c;
 		this.gameover = g;
 		this.host_damage = hd;
 	}
 
-	@Override
-	public int compareTo(Node n) {
-//		int deathsme = 0, killsme = 0;
-//		for (int h : n.host) {
-//			if (h > 3)
-//				deathsme++;
-//			if (h == 6)
-//				killsme++;
-//		}
-//
-//		int deaths = 0, kills = 0;
-//		for (int h : this.host) {
-//			if (h > 3)
-//				deaths++;
-//			if (h == 6)
-//				kills++;
-//		}
-		if (deaths == n.deaths)
-			return agents_killed - n.agents_killed;
-		return deaths - n.deaths;
+	// hashing the state for visited hashset (searching)
+	public static String hashState(Node n) {
+		StringBuilder visited = new StringBuilder();
+		visited.append("" + n.x + "|" + n.y + "|" + n.damageNeo + "|");
 
-//		if (kills == killsme) {
-//			return deaths - deathsme;
-//		}
-//		return kills - killsme;
+		for (byte a : n.agents) {
+			visited.append(a + "|");
+		}
+
+		for (byte h : n.host) {
+			visited.append(h + "|");
+		}
+		visited.append("" + n.pill + "|");
+
+		return visited.toString();
+	}
+
+	// comparing for the cost
+	public int compareTo(Node n) {
+
+		return cost - n.cost;
 	}
 
 }
