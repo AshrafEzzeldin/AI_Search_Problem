@@ -2,6 +2,7 @@ package code;
 
 import java.util.*;
 
+
 public class Matrix extends General_Search {
 
 	//num of rows, cols, carries, and number of states
@@ -87,7 +88,7 @@ public class Matrix extends General_Search {
 		n = rand(5, 15);
 		m = rand(5, 15);
 		c = rand(1, 4);
-
+				
 		Taken = new boolean[n][m];
 
 		Neo = GetRandomPosition();
@@ -106,20 +107,29 @@ public class Matrix extends General_Search {
 			pills[i] = GetRandomPosition();
 
 		int AllRemaning = (n * m) - Hostages - Pills - 2;
-
-		int Pads = rand(0, AllRemaning / 2);
+		
+		// you can remove the 3 if you want no limit 
+		int Pads = rand(0,Math.min(AllRemaning / 2,3));
 		AllRemaning -= 2 * Pads;
-		int Agents = rand(0, AllRemaning);
+		
+		// you can remove the 20 if you want no limit 
+		int Agents = rand(0, Math.min(AllRemaning ,20));
 
 		pads = new Position[2 * Pads];
+		padsIDs = new int[n][m];
+		for (int i = 0; i < n; i++) {
+			Arrays.fill(padsIDs[i], -1);
+		}
 		agents = new Position[Agents];
 
 		for (int i = 0; i < Agents; i++)
 			agents[i] = GetRandomPosition();
 
-		for (int i = 0; i < 2 * Pads; i += 2) {
+		for (int i = 0; i < Pads; i++) {
 			pads[i] = GetRandomPosition();
-			pads[i + 1] = GetRandomPosition();
+			pads[i + Pads] = GetRandomPosition();
+			padsIDs[pads[i].x][pads[i].y] = i;
+			padsIDs[pads[(i + pads.length / 2)].x][pads[(i + pads.length / 2)].y] = (i + pads.length / 2);
 		}
 	}
 	
@@ -200,6 +210,31 @@ public class Matrix extends General_Search {
 		if (visualize) {
 			visualize(sol);
 		}
+		return sol;
+
+	}
+	
+
+	// just for testing gneGrid()
+	public static String test(String strategy) {
+
+		genGrid();
+		System.out.println(n+" "+m+" "+c);
+		System.out.println(pads.length);
+		System.out.println(hostages.length);
+		System.out.println(Arrays.deepToString(padsIDs));
+
+		cnt_states = 0;
+		byte[] host_damage = find_host_damage();
+
+		Node node = new Node((byte) Neo.x, (byte) Neo.y, new byte[hostages.length], 0, (short) 0,
+				new byte[agents.length], (byte) 0, new StringBuilder(), host_damage);
+
+		memo = new HashMap<>();
+
+		System.out.println();
+
+		String sol = new Matrix().general_search(node, strategy);
 		return sol;
 
 	}
@@ -544,16 +579,19 @@ public class Matrix extends General_Search {
 		String grid9 = "5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80";
 		String grid10 = "5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0;0,0,62,4,3,45,3,3,39,2,3,40";
 
-		System.out.println(solve(grid0, "BF", false));
-		System.out.println(solve(grid0, "DF", false));
-		System.out.println(solve(grid0, "ID", false));
-		System.out.println(solve(grid0, "UC", false));
-		System.out.println(solve(grid0, "GR1", false));
-		System.out.println(solve(grid0, "GR2", false));
-		System.out.println(solve(grid0, "AS1", false));
 		System.out.println(solve(grid0, "AS2", false));
+		System.out.println(solve(grid1, "AS2", false));
+		System.out.println(solve(grid2, "AS2", false));
+		System.out.println(solve(grid3, "AS2", false));
+		System.out.println(solve(grid4, "AS2", false));
+		System.out.println(solve(grid5, "AS2", false));
+		System.out.println(solve(grid6, "AS2", false));
+		System.out.println(solve(grid7, "AS2", false));
+		System.out.println(solve(grid8, "AS2", false));
+		System.out.println(solve(grid9, "AS2", false));
+		System.out.println(solve(grid10, "AS2", false));
 		
-		
+//		System.out.println(test("UC"));
 		
 	}
 

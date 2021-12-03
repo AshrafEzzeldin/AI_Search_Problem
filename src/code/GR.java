@@ -98,27 +98,19 @@ public class GR {
 		deaths = n.host.length - Matrix.dp(n.x, n.y, mskstatus, mskcarry, 0);
 		int c = deaths * 10 ;
 
-//		if (c == 0 && !n.gameover)
-//			c = 1;
 		return c;
 	}
 
-	// heuristic2 the number of hostages which are dead and who have damage greater
-	// than 97
+	// heuristic2 the number of hostages which are dead 
 	static int heuristic2(Node n) {
 		// TODO Auto-generated method stub
 		int kills = 0;
-		int deaths = 0;
 		for (int i = 0; i < n.host.length; i++) {
 			if (n.host[i] == 2)
 				kills++;
-//			if (n.host_damage[i] == 98 || n.host_damage[i] == 99)
-//				deaths++;
 		}
-		int c = deaths * 10 + kills + deaths ;
+		int c = kills ;
 
-//		if (c == 0 && !n.gameover)
-//			c = 1;
 		return c;
 
 	}
